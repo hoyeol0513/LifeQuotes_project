@@ -24,39 +24,51 @@ app.use(cors(corsOptions));
 
 const port = 3000;
 
-app.patch("/lifequotes/rand/like", async (req, res) => {
-  const { id, like } = req.body;
-
-  await pool.query(
-    `
-    UPDATE lifequotes
-    SET liked = ?
-    WHERE id = ?
-    `,
-    [like, id]
-    //rows안에 명언들이 있고
-    //그 중 하나에 index를 통해서 접근해야함.
+app.patch("/lifequotes/hate", async (req, res) => { //싫어요 증가
+    
+  const { id } = req.body;
+  if(id === undefined){
+    res.status(404).json({
+      msg:"id required"
+    });
+    return;
+  }
+  const [rs] = await pool.query(`
+  UPDATE lifequotes
+  SET hated = hated + 1
+  WHERE id = ?
+  `,
+  [id]
   );
 
-  res.json();
+  res.json({
+    msg : "싫어요가 1 증가되었습니다."
+  });
 });
 
-app.patch("/lifequotes/rand/hate", async (req, res) => {
-  const { id, hate } = req.body;
+app.patch("/lifequotes/like", async (req, res) => { //좋아요 수 증가
 
-  const [rs] = await pool.query(
-    `
-    UPDATE lifequotes
-    SET hated = ?
-    WHERE id = ?
-    `,
-    [hate, id]
-    //rows안에 명언들이 있고
-    //그 중 하나에 index를 통해서 접근해야함.
+  const { id } = req.body;
+
+  if(id === undefined){
+    res.status(404).json({
+      msg:"id required"
+    });
+    return;
+  }
+  const [rs] = await pool.query(`
+  UPDATE lifequotes
+  SET liked = liked + 1
+  WHERE id = ?
+  `,
+  [id]
   );
 
-  res.json();
+  res.json({
+    msg : "좋아요가 1 증가되었습니다."
+  });
 });
+
 
 app.get("/lifequotes/rand", async (req, res) => {
   const [rows] = await pool.query(
