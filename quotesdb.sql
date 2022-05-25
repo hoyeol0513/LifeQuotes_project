@@ -62,3 +62,5 @@ CREATE TABLE lifequotes(
  SELECT * FROM lifequotes;
 
 ALTER TABLE lifequotes ADD COLUMN hit INT NOT NULL;
+ALTER TABLE lifequotes ADD COLUMN liked INT NOT NULL; 
+ALTER TABLE lifequotes ADD COLUMN hated INT NOT NULL; 

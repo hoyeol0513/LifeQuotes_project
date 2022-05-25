@@ -10,6 +10,7 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
+  dateStrings: true,
 });
 
 const app = express();
@@ -17,32 +18,45 @@ app.use(express.json());
 
 const corsOptions = {
   origin: "https://cdpn.io",
-  optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+  optionsSuccessStatus: 200,
 };
-
 app.use(cors(corsOptions));
 
 const port = 3000;
 
-// app.get("/lifequotes/:id", async (req, res) => {
-//   const { id } = req.params;
+app.patch("/lifequotes/rand/like", async (req, res) => {
+  const { id, like } = req.body;
 
-//   const [rows] = await pool.query(
-//     `SELECT *
-//       FROM lifequotes
-//       WHERE id = ?
-//       `,
-//     [id]
-//   );
-//   if (rows.length == 0) {
-//     res.status(404).json({
-//       msg: "not found",
-//     });
-//     return;
-//   }
+  await pool.query(
+    `
+    UPDATE lifequotes
+    SET liked = ?
+    WHERE id = ?
+    `,
+    [like, id]
+    //rows안에 명언들이 있고
+    //그 중 하나에 index를 통해서 접근해야함.
+  );
 
-//   res.json(rows);
-// });
+  res.json();
+});
+
+app.patch("/lifequotes/rand/hate", async (req, res) => {
+  const { id, hate } = req.body;
+
+  const [rs] = await pool.query(
+    `
+    UPDATE lifequotes
+    SET hated = ?
+    WHERE id = ?
+    `,
+    [hate, id]
+    //rows안에 명언들이 있고
+    //그 중 하나에 index를 통해서 접근해야함.
+  );
+
+  res.json();
+});
 
 app.get("/lifequotes/rand", async (req, res) => {
   const [rows] = await pool.query(
